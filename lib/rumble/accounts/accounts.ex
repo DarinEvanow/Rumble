@@ -22,4 +22,20 @@ defmodule Rumble.Accounts do
   """
   def get_user_by(params), do: Repo.get_by(User, params)
   def get_user_by!(params), do: Repo.get_by!(User, params)
+
+  @doc """
+  Serves as the public API call to change a User using the changeset defined in User, which
+  will be used in our form to hold new user data before submission
+  """
+  def change_user(%User{} = user), do: User.changeset(user, %{})
+
+  @doc """
+  Serves as the public API call to create a User using the changeset defined in User, which
+  will be used in our form to insert the new user data after submission
+  """
+  def create_user(attrs \\ %{}) do
+    %User{}
+      |> User.changeset(attrs)
+      |> Repo.insert()
+  end
 end
