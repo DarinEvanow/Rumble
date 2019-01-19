@@ -29,4 +29,5 @@ defmodule Rumble.Accounts.User do
     user
     |> changeset(params)
     |> cast_assoc(:credential, with: &Credential.changeset/2, required: true)
+  end
 end

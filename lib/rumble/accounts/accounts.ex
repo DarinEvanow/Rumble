@@ -21,6 +21,16 @@ defmodule Rumble.Accounts do
     %User{}
       |> User.changeset(attrs)
       |> Repo.insert()
+  end
+
+  @doc """
+  Serves as the public API call to register a user through our web interface
+  """
+  def register_user(attrs \\ %{}) do
+    %User{}
+    |> User.registration_changeset(attrs)
+    |> Repo.insert()
+  end
 
   @doc """
   Returns a list of all of our users.
