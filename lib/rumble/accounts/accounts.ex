@@ -3,6 +3,8 @@ defmodule Rumble.Accounts do
   The Accounts context.
   """
 
+  import Ecto.Query
+
   alias Rumble.Repo
   alias Rumble.Accounts.User
   alias Rumble.Accounts.Credential
@@ -48,6 +50,37 @@ defmodule Rumble.Accounts do
   """
   def get_user_by(params), do: Repo.get_by(User, params)
   def get_user_by!(params), do: Repo.get_by!(User, params)
+
+  @doc """
+  Returns a user that contains the given email, and preloads the Credential
+  associated if they are found.
+  """
+  def get_user_by_email(email) do
+    from(u in User, join: c in assoc(u, :credential), where: c.email == ^email)
+    |> Repo.one()
+    |> Repo.preload(:credential)
+  end
+
+  @doc """
+  Used to check if the email and password combination given is valid. If it is
+  not, we use Comeonin to simulate a password check, to help prevent timing
+  attacks
+  """
+  def authenticate_by_email_and_pass(email, given_pass) do
+    user = get_user_by_email(email)
+
+    cond do
+      user && Comeonin.Pbkdf2.check_pass(given_pass, user.credential.password) ->
+        {:ok, user}
+
+      user ->
+        {:error, :unauthorized}
+
+      true ->
+        Comeonin.Bcrypt.dummy_checkpw()
+        {:error, :not_found}
+    end
+  end
 
   @doc """
   Returns the list of credentials.
