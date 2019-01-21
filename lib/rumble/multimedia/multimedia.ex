@@ -7,6 +7,7 @@ defmodule Rumble.Multimedia do
   alias Rumble.Repo
 
   alias Rumble.Multimedia.Video
+  alias Rumble.Accounts
 
   @doc """
   Returns the list of videos.
@@ -18,7 +19,9 @@ defmodule Rumble.Multimedia do
 
   """
   def list_videos do
-    Repo.all(Video)
+    Video
+    |> Repo.all()
+    |> preload_user()
   end
 
   @doc """
@@ -35,7 +38,11 @@ defmodule Rumble.Multimedia do
       ** (Ecto.NoResultsError)
 
   """
-  def get_video!(id), do: Repo.get!(Video, id)
+  def get_video!(id) do
+    Video
+    |> Repo.get!(id)
+    |> preload_user()
+  end
 
   @doc """
   Creates a video.
@@ -49,9 +56,10 @@ defmodule Rumble.Multimedia do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_video(attrs \\ %{}) do
+  def create_video(%Accounts.User{} = user, attrs \\ %{}) do
     %Video{}
     |> Video.changeset(attrs)
+    |> put_user(user)
     |> Repo.insert()
   end
 
@@ -98,7 +106,45 @@ defmodule Rumble.Multimedia do
       %Ecto.Changeset{source: %Video{}}
 
   """
-  def change_video(%Video{} = video) do
-    Video.changeset(video, %{})
+  def change_video(%Accounts.User{} = user, %Video{} = video) do
+    video
+    |> Video.changeset(%{})
+    |> put_user(user)
+  end
+
+  @doc """
+  Returns all of the videos associated with a user
+  """
+  def list_user_videos(%Accounts.User{} = user) do
+    Video
+    |> user_videos_query(user)
+    |> Repo.all()
+    |> preload_user()
+  end
+
+  @doc """
+  Returns a specific user video by ID
+  """
+  def get_user_video!(%Accounts.User{} = user, id) do
+    from(v in Video, where: v.id == ^id)
+    |> user_videos_query(user)
+    |> Repo.one!()
+    |> preload_user()
+  end
+
+  # Helper function to encapsulate querying all the videos of a user
+  defp user_videos_query(query, %Accounts.User{id: user_id}) do
+    from(v in query, where: v.user_id == ^user_id)
+  end
+
+  # Helper function to use our user association as a change into the change changeset
+  defp put_user(changeset, user) do
+    Ecto.Changeset.put_assoc(changeset, :user, user)
+  end
+
+  # Helper function to make sure our Multimedia context always has knowledge
+  # of our Accounts.User relationship
+  defp preload_user(video_or_videos) do
+    Repo.preload(video_or_videos, :user)
   end
 end
