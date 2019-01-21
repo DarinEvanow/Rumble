@@ -23,6 +23,7 @@ defmodule RumbleWeb do
 
       import Plug.Conn
       import RumbleWeb.Gettext
+      import RumbleWeb.Auth, only: [authenticate_user: 2]
       alias RumbleWeb.Router.Helpers, as: Routes
     end
   end
@@ -50,6 +51,7 @@ defmodule RumbleWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import RumbleWeb.Auth, only: [authenticate_user: 2]
     end
   end
 
