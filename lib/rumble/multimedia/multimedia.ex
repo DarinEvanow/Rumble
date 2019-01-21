@@ -6,8 +6,9 @@ defmodule Rumble.Multimedia do
   import Ecto.Query, warn: false
   alias Rumble.Repo
 
-  alias Rumble.Multimedia.Video
   alias Rumble.Accounts
+  alias Rumble.Multimedia.Video
+  alias Rumble.Multimedia.Category
 
   @doc """
   Returns the list of videos.
@@ -130,6 +131,23 @@ defmodule Rumble.Multimedia do
     |> user_videos_query(user)
     |> Repo.one!()
     |> preload_user()
+  end
+
+  @doc """
+  Used to create a multimedia category. This function is designed to only be run
+  programmatically, not from user input.
+  """
+  def create_category(name) do
+    Repo.get_by(Category, name: name) || Repo.insert!(%Category{name: name})
+  end
+
+  @doc """
+  Displays all of the categories in alphabetical order
+  """
+  def list_alphabetical_categories do
+    Category
+    |> Category.alphabetical()
+    |> Repo.all()
   end
 
   # Helper function to encapsulate querying all the videos of a user
