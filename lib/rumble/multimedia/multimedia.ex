@@ -141,6 +141,15 @@ defmodule Rumble.Multimedia do
     Repo.get_by(Category, name: name) || Repo.insert!(%Category{name: name})
   end
 
+  @doc """
+  Displays all of the categories in alphabetical order
+  """
+  def list_alphabetical_categories do
+    Category
+    |> Category.alphabetical()
+    |> Repo.all()
+  end
+
   # Helper function to encapsulate querying all the videos of a user
   defp user_videos_query(query, %Accounts.User{id: user_id}) do
     from(v in query, where: v.user_id == ^user_id)
