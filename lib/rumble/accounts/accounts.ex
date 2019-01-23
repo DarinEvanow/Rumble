@@ -70,7 +70,7 @@ defmodule Rumble.Accounts do
     user = get_user_by_email(email)
 
     cond do
-      user && Comeonin.Pbkdf2.check_pass(given_pass, user.credential.password) ->
+      user && Comeonin.Pbkdf2.checkpw(given_pass, user.credential.password_hash) ->
         {:ok, user}
 
       user ->

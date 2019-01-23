@@ -16,3 +16,6 @@ config :rumble, Rumble.Repo,
   database: "rumble_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# Config Comeonin hashing to speed up our authentication tests
+config :pbkdf2_elixir, :rounds, 1
