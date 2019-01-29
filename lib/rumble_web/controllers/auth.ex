@@ -12,10 +12,10 @@ defmodule RumbleWeb.Auth do
 
     cond do
       user = conn.assigns[:current_user] ->
-        conn
+        put_current_user(conn, user)
 
       user = user_id && Accounts.get_user(user_id) ->
-        assign(conn, :current_user, user)
+        put_current_user(conn, user)
 
       true ->
         assign(conn, :current_user, nil)
@@ -50,5 +50,13 @@ defmodule RumbleWeb.Auth do
       |> redirect(to: Routes.page_path(conn, :index))
       |> halt()
     end
+  end
+
+  defp put_current_user(conn, user) do
+    token = Phoenix.Token.sign(conn, "user socket", user.id)
+
+    conn
+    |> assign(:current_user, user)
+    |> assign(:user_token, token)
   end
 end
