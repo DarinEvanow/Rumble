@@ -8,4 +8,8 @@ defmodule RumbleWeb.UserView do
     |> String.split(" ")
     |> Enum.at(0)
   end
+
+  def render("user.json", %{user: user}) do
+    %{id: user.id, username: user.username}
+  end
 end
